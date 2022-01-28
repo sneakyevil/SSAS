@@ -9,3 +9,7 @@ This also means that you can't log out off from your account you're currently us
 ### Usage:
 Log to any account with "Remember Password" and inside the program select "Add Account", thats basically all now you can freely switch to that account, but make sure you never (sign out) from the account.
 If you need to switch account either select "New Login" inside the program or exit and launch steam again.
+
+### Preview:
+![1](https://i.imgur.com/aQoqOUU.png)
+![2](https://i.imgur.com/59vskWb.png)

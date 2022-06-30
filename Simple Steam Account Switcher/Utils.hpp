@@ -11,6 +11,11 @@ namespace Utils
 		BOOL __stdcall GetListForWindowClass(HWND m_hWindow, LPARAM m_pParam);
 	}
 
+	namespace Steam
+	{
+		std::vector<std::string> GetFilesSSFN(std::string m_sPath);
+	}
+
 	namespace Registry
 	{
 		unsigned int GetDWORD(HKEY m_hKey, const char* m_pPath, const char* m_pKey);

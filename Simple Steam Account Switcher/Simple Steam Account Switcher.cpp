@@ -2,6 +2,8 @@
 #include "AccountManager.hpp"
 #include "Console.hpp"
 
+#define ENABLE_SSFN 1
+
 namespace Program
 {
     void Info()
@@ -176,7 +178,7 @@ int main()
                         }
 
                         std::string m_sAccountVDF = AccountManager::GetPath(Account.m_sName) + "\\" + AccountManager::m_pVDFName;
-                        if (CopyFileA(&Program::Steam::m_sVDFPath[0], &m_sAccountVDF[0], FALSE))
+                        if (CopyFileA(&m_sAccountVDF[0], &Program::Steam::m_sVDFPath[0], FALSE))
                         {
                             bool m_bSomeRegisterFailed = false;
                             if (!Utils::Registry::WriteString(HKEY_CURRENT_USER, Program::Steam::m_pSteamRegistry, "AutoLoginUser", Account.m_sName))
@@ -189,6 +191,29 @@ int main()
                                 Program::Error("Couldn't write login user name.");
                             else
                             {
+                                std::vector<std::string> m_SwitchAccountSSFN = Utils::Steam::GetFilesSSFN(AccountManager::GetSSFNPath(Account.m_sName));
+                                if (!m_SwitchAccountSSFN.empty())
+                                {
+                                    std::vector<std::string> m_SteamSSFN = Utils::Steam::GetFilesSSFN(Program::Steam::m_sPath);
+                                    for (std::string s : m_SteamSSFN)
+                                    {
+                                        s = Program::Steam::m_sPath + "\\" + s;
+                                        remove(&s[0]);
+                                    }
+
+                                    for (std::string s : m_SwitchAccountSSFN)
+                                    {
+                                        std::string src = AccountManager::GetSSFNPath(Account.m_sName) + "\\" + s;
+                                        std::string dst = Program::Steam::m_sPath + "\\" + s;
+
+                                        if (!CopyFileA(&src[0], &dst[0], FALSE))
+                                        {
+                                            Program::Error("Couldn't write ssfn file.");
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 Console::Print(Console::m_uDefaultColor, '~', "Launching steam...\n\n");
                                 Program::Steam::Start();
 
@@ -230,6 +255,21 @@ int main()
                         {
                             AccountManager::New(m_sLoginName, Program::Steam::m_sVDFPath);
                             AccountManager::Refresh();
+
+                            #ifdef ENABLE_SSFN
+
+                            std::string m_AccountSSFN = AccountManager::GetSSFNPath(m_sLoginName);
+                            CreateDirectoryA(&m_AccountSSFN[0], 0);
+
+                            std::vector<std::string> m_SteamSSFN = Utils::Steam::GetFilesSSFN(Program::Steam::m_sPath);
+                            for (std::string s : m_SteamSSFN)
+                            {
+                                std::string src = Program::Steam::m_sPath + "\\" + s;
+                                std::string dst = m_AccountSSFN + "\\" + s;
+                                CopyFileA(&src[0], &dst[0], FALSE);
+                            }
+
+                            #endif
                         }
                         else
                             Program::Error("Couldn't read logged user name.");
@@ -279,7 +319,8 @@ int main()
                     Program::Steam::Exit();
                 }
 
-                Utils::Registry::WriteDWORD(HKEY_CURRENT_USER, Program::Steam::m_pSteamRegistry, "RememberPassword", 0U);
+                Utils::Registry::WriteString(HKEY_CURRENT_USER, Program::Steam::m_pSteamRegistry, "AutoLoginUser", "");
+                Utils::Registry::WriteDWORD(HKEY_CURRENT_USER, Program::Steam::m_pSteamRegistry, "RememberPassword", 1U);
 
                 Console::Print(Console::m_uDefaultColor, '~', "Launching steam...\n\n");
                 Program::Steam::Start();

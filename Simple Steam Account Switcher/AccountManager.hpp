@@ -22,6 +22,11 @@ namespace AccountManager
 		return std::string(m_pDirectoryName) + "\\" + m_sAccountName;
 	}
 
+	std::string GetSSFNPath(std::string m_sAccountName)
+	{
+		return GetPath(m_sAccountName) + "\\ssfn";
+	}
+
 	std::vector<CAccount> m_vAccounts;
 	std::string GetLastSwitchDate(std::string m_sAccountName)
 	{

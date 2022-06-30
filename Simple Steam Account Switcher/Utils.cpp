@@ -45,6 +45,33 @@ namespace Utils
 		}
 	}
 
+	namespace Steam
+	{
+		std::vector<std::string> GetFilesSSFN(std::string m_sPath)
+		{
+			std::vector<std::string> m_Files;
+
+			m_sPath += "\\*";
+			WIN32_FIND_DATA m_wFindData;
+
+			HANDLE m_hFind = FindFirstFileA(&m_sPath[0], &m_wFindData);
+			if (m_hFind)
+			{
+				while (FindNextFileA(m_hFind, &m_wFindData))
+				{
+					if (m_wFindData.cFileName[0] == '.') continue;
+					if (m_wFindData.cFileName[0] != 's' || m_wFindData.cFileName[1] != 's' || m_wFindData.cFileName[2] != 'f' || m_wFindData.cFileName[3] != 'n') continue;
+
+					m_Files.emplace_back(m_wFindData.cFileName);
+				}
+
+				FindClose(m_hFind);
+			}
+
+			return m_Files;
+		}
+	}
+
 	namespace Registry
 	{
 		unsigned int GetDWORD(HKEY m_hKey, const char* m_pPath, const char* m_pKey)

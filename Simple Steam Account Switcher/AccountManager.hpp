@@ -9,6 +9,10 @@ public:
 	std::string m_sLastSwitchDate = "Unk";
 
 	CAccount() { }
+	std::string GetDisplayName()
+	{
+		return (m_sAlternativeName.empty() ? m_sName : m_sAlternativeName);
+	}
 };
 
 namespace AccountManager
@@ -85,6 +89,7 @@ namespace AccountManager
 		}
 
 		m_vAccounts.push_back(Account);
+		std::sort(m_vAccounts.begin(), m_vAccounts.end(), [](CAccount Account1, CAccount Account2) -> bool { return Account2.GetDisplayName() > Account1.GetDisplayName(); });
 	}
 
 	void WriteInfo(std::string m_sAccountName, std::string m_sAlternativeName = "", std::string m_sLastSwitch = "")

@@ -119,7 +119,7 @@ namespace Program
         for (CAccount& Account : AccountManager::m_vAccounts)
         {
             std::string m_sAccount = std::to_string(m_iCount) + ". ";
-            m_sAccount += Account.m_sAlternativeName.empty() ? Account.m_sName : Account.m_sAlternativeName;
+            m_sAccount += Account.GetDisplayName();
             m_sAccount += " - Last Switch (" + Account.m_sLastSwitchDate + ")";
 
             m_vReturn.emplace_back(m_sAccount);

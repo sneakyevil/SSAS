@@ -6,6 +6,17 @@
 
 namespace Program
 {
+    bool CheckLaunchArg(int argc, char** argv, const char* arg)
+    {
+        for (int i = 0; argc > i; ++i)
+        {
+            if (strstr(argv[i], arg))
+                return true;
+        }
+
+        return false;
+    }
+
     void Info()
     {
         Console::Clear();
@@ -69,6 +80,8 @@ namespace Program
         std::string m_sExecutable = "steam.exe";
         const char* m_pSteamRegistry = "Software\\Valve\\Steam";
 
+        bool m_bNeverCheckIfRunning = false;
+
         bool Init()
         {
             m_sPath = Utils::Registry::GetString(HKEY_CURRENT_USER, m_pSteamRegistry, "SteamPath");
@@ -81,10 +94,18 @@ namespace Program
 
         bool IsRememberPasswordChecked() { return (Utils::Registry::GetDWORD(HKEY_CURRENT_USER, m_pSteamRegistry, "RememberPassword") == 1U); }
 
-        bool IsRunning() { return (Utils::GetProcessID(&m_sExecutable[0]) != 0U); }
+        bool IsRunning() 
+        { 
+            if (m_bNeverCheckIfRunning)
+                return false;
+
+            return (Utils::GetProcessID(&m_sExecutable[0]) != 0U); 
+        }
 
         void Start(std::string m_sArgs = "")
         {
+            m_sArgs.insert(0, "-noreactlogin ");
+
             std::string m_sSteamExe = m_sPath + "\\" + m_sExecutable + " " + m_sArgs;
 
             STARTUPINFO m_sStartupInfo;
@@ -132,10 +153,12 @@ namespace Program
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
     Console::Init("SSAS"); 
     SetConsoleOutputCP(437); // Required for arrow draw...
+
+    Program::Steam::m_bNeverCheckIfRunning = Program::CheckLaunchArg(argc, argv, "-nosteamcheck");
 
     if (!Program::Steam::Init())
         return Program::Error("Couldn't fetch Steam informations.");

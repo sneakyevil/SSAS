@@ -104,7 +104,7 @@ namespace Program
 
         void Start(std::string m_sArgs = "")
         {
-            m_sArgs.insert(0, "-noreactlogin ");
+            m_sArgs.insert(0, "-windowed -bigpicture ");
 
             std::string m_sSteamExe = m_sPath + "\\" + m_sExecutable + " " + m_sArgs;
 
